@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sevgili Yılan Oyunu ❤️</title>
+<style>
+body {
+    font-family: sans-serif;
+    background: #ffe6f0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    margin: 0;
+}
+#gameArea {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    background: #fff;
+    border: 2px solid #ff69b4;
+}
+#scoreArea {
+    margin-left: 20px;
+    width: 250px;
+}
+h2 {
+    color: #ff1493;
+}
+#message {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Yön butonları */
+#buttons {
+    margin-top: 20px;
+}
+button {
+    padding:10px 15px;
+    margin:5px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff1493;
+    color:white;
+}
+</style>
+</head>
+<body>
+
+<div>
+    <div id="gameArea"></div>
+    <div id="buttons">
+        <div style="text-align:center">
+            <button onclick="setDirection(0,-1)">↑</button>
+        </div>
+        <div style="text-align:center">
+            <button onclick="setDirection(-1,0)">←</button>
+            <button onclick="setDirection(1,0)">→</button>
+        </div>
+        <div style="text-align:center">
+            <button onclick="setDirection(0,1)">↓</button>
+        </div>
+    </div>
+</div>
+
+<div id="scoreArea">
+    <h2>Sevgi Puanı ❤️</h2>
+    <p>Skor: <span id="score">0</span></p>
+    <div id="message"></div>
+</div>
+
+<script>
+const canvasSize = 20;
+const gridCount = 20;
+const gameArea = document.getElementById('gameArea');
+const scoreEl = document.getElementById('score');
+const messageEl = document.getElementById('message');
+
+let snake = [{x:10, y:10}];
+let direction = {x:0, y:0};
+let food = {x:5, y:5};
+let score = 0;
+
+function draw(){
+    gameArea.innerHTML = '';
+    // Yılan
+    snake.forEach(segment=>{
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.width = canvasSize + 'px';
+        div.style.height = canvasSize + 'px';
+        div.style.background = '#ff1493';
+        div.style.left = segment.x*canvasSize + 'px';
+        div.style.top = segment.y*canvasSize + 'px';
+        div.style.borderRadius = '4px';
+        gameArea.appendChild(div);
+    });
+
+    // Yem
+    const div = document.createElement('div');
+    div.style.position = 'absolute';
+    div.style.width = canvasSize + 'px';
+    div.style.height = canvasSize + 'px';
+    div.style.background = '#ff69b4';
+    div.style.left = food.x*canvasSize + 'px';
+    div.style.top = food.y*canvasSize + 'px';
+    div.style.borderRadius = '50%';
+    gameArea.appendChild(div);
+}
+
+function move(){
+    if(direction.x === 0 && direction.y === 0) return; // Başlamamışsa hareket etme
+
+    const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+    snake.unshift(head);
+
+    // Yem yendi
+    if(head.x === food.x && head.y === food.y){
+        score++;
+        scoreEl.innerText = score;
+        messageEl.innerText = randomMessage();
+        placeFood();
+    } else {
+        snake.pop();
+    }
+
+    // Çarpma kontrol
+    if(head.x<0 || head.x>=gridCount || head.y<0 || head.y>=gridCount || collision(head)){
+        alert('Oyun bitti 😢 Skor: '+score);
+        resetGame();
+    }
+
+    draw();
+}
+
+function collision(head){
+    return snake.slice(1).some(seg=>seg.x===head.x && seg.y===head.y);
+}
+
+function placeFood(){
+    food.x = Math.floor(Math.random()*gridCount);
+    food.y = Math.floor(Math.random()*gridCount);
+}
+
+function randomMessage(){
+    const messages = [
+        "yalarım seni he ck gzlsn",
+        "hanımefendi guzellıgın sırrı nedır",
+        "bnı afftcn dmı???",
+        "bnce affet :c",
+        "bılerek yapmadım",
+        "cok sevıom senıı",
+        "lutfn affeedddd",
+        "valla isteyerek olmadı",
+        "😭😭😭"
+    ];
+    return messages[Math.floor(Math.random()*messages.length)];
+}
+
+function resetGame(){
+    snake = [{x:10, y:10}];
+    direction = {x:0, y:0};
+    score = 0;
+    scoreEl.innerText = score;
+    messageEl.innerText = "";
+}
+
+// Klavye kontrolleri
+document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowUp' && direction.y!==1) direction={x:0,y:-1};
+    if(e.key==='ArrowDown' && direction.y!==-1) direction={x:0,y:1};
+    if(e.key==='ArrowLeft' && direction.x!==1) direction={x:-1,y:0};
+    if(e.key==='ArrowRight' && direction.x!==-1) direction={x:1,y:0};
+});
+
+// Ekran butonları için
+function setDirection(x,y){
+    if((x===1 && direction.x===-1) || (x===-1 && direction.x===1)) return;
+    if((y===1 && direction.y===-1) || (y===-1 && direction.y===1)) return;
+    direction = {x:x, y:y};
+}
+
+// Oyun döngüsü
+setInterval(move, 200);
+draw();
+</script>
+
+</body>
+</html>
